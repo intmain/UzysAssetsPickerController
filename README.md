@@ -59,7 +59,7 @@ for more configable properties, please refer to `UzysAppearanceConfig.h`
 ```
 ### UzysAssetPickerControllerDelegate
 ``` objective-c
-- (void)UzysAssetsPickerController:(UzysAssetsPickerController *)picker didFinishPickingAssets:(NSArray *)assets
+- (void)uzysAssetsPickerController:(UzysAssetsPickerController *)picker didFinishPickingAssets:(NSArray *)assets
 {
     __weak typeof(self) weakSelf = self;
     if([[assets[0] valueForProperty:@"ALAssetPropertyType"] isEqualToString:@"ALAssetTypePhoto"]) //Photo
@@ -148,6 +148,8 @@ for more configable properties, please refer to `UzysAppearanceConfig.h`
 
 ## ChangeLog
 - V0.9.6 - changing Delegate Method name because of supporting Swift. [#28](https://github.com/uzysjung/UzysAssetsPickerController/pull/28)
+- V0.9.7 - fixed self retain bug
+- V0.9.8 - implement selection order; settings to change cellspacing columns number; support cocoapod on SWIFT 
 
 ## Contact
  - [Uzys.net](http://uzys.net)
