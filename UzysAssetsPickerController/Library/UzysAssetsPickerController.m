@@ -148,9 +148,17 @@
     self.btnDone.clipsToBounds = YES;
     [self.btnDone setBackgroundColor:appearanceConfig.finishSelectionButtonColor];
     
-    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 0.5)];
+    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 0.5)];
     lineView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.15f];
+    lineView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.bottomView addSubview:lineView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(lineView , self.bottomView);
+    NSArray *horizontalConstraints =[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[lineView]|" options:0 metrics:nil views:views];
+    NSArray *verticalConstraints =[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[lineView(0.5)]" options:0 metrics:nil views:views];
+    
+    [self.bottomView addConstraints:horizontalConstraints];
+    [self.bottomView addConstraints:verticalConstraints];
 }
 - (void)setupGroupPickerview
 {
@@ -218,6 +226,23 @@
     }
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+}
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    UzysAppearanceConfig *appearanceConfig = [UzysAppearanceConfig sharedConfig];
+    CGFloat itemWidth = (self.collectionView.bounds.size.width - appearanceConfig.cellSpacing * ((CGFloat)appearanceConfig.assetsCountInALine - 1.0f)) / (CGFloat)appearanceConfig.assetsCountInALine;
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    layout.itemSize = CGSizeMake(itemWidth, itemWidth);
+    self.collectionView.collectionViewLayout = layout;
+}
+
 - (void)setupCollectionView
 {
     
@@ -225,13 +250,12 @@
     
     UzysAppearanceConfig *appearanceConfig = [UzysAppearanceConfig sharedConfig];
     
-    CGFloat itemWidth = ([UIScreen mainScreen].bounds.size.width - appearanceConfig.cellSpacing * ((CGFloat)appearanceConfig.assetsCountInALine - 1.0f)) / (CGFloat)appearanceConfig.assetsCountInALine;
+    CGFloat itemWidth = (self.view.bounds.size.width - appearanceConfig.cellSpacing * ((CGFloat)appearanceConfig.assetsCountInALine - 1.0f)) / (CGFloat)appearanceConfig.assetsCountInALine;
     layout.itemSize = CGSizeMake(itemWidth, itemWidth);
     layout.sectionInset                 = UIEdgeInsetsMake(1.0, 0, 0, 0);
     layout.minimumInteritemSpacing      = 1.0;
     layout.minimumLineSpacing           = appearanceConfig.cellSpacing;
-  
-    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 64, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - 64 -48) collectionViewLayout:layout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 64, self.view.bounds.size.width, self.view.bounds.size.height - 64 -48) collectionViewLayout:layout];
     self.collectionView.allowsMultipleSelection = YES;
     [self.collectionView registerClass:[UzysAssetsViewCell class]
             forCellWithReuseIdentifier:kAssetsViewCellIdentifier];
@@ -242,8 +266,17 @@
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceVertical = YES;
     self.collectionView.scrollsToTop = YES;
-
+    self.collectionView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view insertSubview:self.collectionView atIndex:0];
+    
+    UICollectionView *collectionView = self.collectionView;
+    NSDictionary *views = NSDictionaryOfVariableBindings(collectionView);
+    NSArray *verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-64-[collectionView]-48-|" options:0 metrics:nil views:views];
+    NSArray *horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[collectionView]|" options:0 metrics:nil views:views];
+    
+    [self.view addConstraints:horizontalConstraints];
+    [self.view addConstraints:verticalConstraints];
+
 }
 #pragma mark - Property
 - (void)setAssetsFilter:(ALAssetsFilter *)assetsFilter type:(NSInteger)type
