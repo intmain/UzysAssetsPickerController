@@ -22,6 +22,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    //Commit TEST
 	// Do any additional setup after loading the view, typically from a nib.
     [[UIButton appearance] setTintColor:[UIColor darkTextColor]];
     [UIButton appearance].titleLabel.font = [UIFont systemFontOfSize:14];
