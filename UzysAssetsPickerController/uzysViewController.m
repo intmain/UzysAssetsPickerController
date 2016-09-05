@@ -17,11 +17,14 @@
 @property (nonatomic,strong) UILabel *labelDescription;
 @end
 
-@implementation uzysViewController
+@implementation uzysViewController{
+    UzysAssetsPickerController *picker;
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    picker = [[UzysAssetsPickerController alloc] init];
     //Commit TEST
 	// Do any additional setup after loading the view, typically from a nib.
     [[UIButton appearance] setTintColor:[UIColor darkTextColor]];
@@ -91,7 +94,6 @@
     [UzysAssetsPickerController setUpAppearanceConfig:appearanceConfig];
 #endif
 
-    UzysAssetsPickerController *picker = [[UzysAssetsPickerController alloc] init];
     picker.delegate = self;
     if([sender isEqual:self.btnImage])
     {

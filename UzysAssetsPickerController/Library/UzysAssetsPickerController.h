@@ -35,5 +35,5 @@
  *  @param config UzysAppearanceConfig instance.
  */
 + (void)setUpAppearanceConfig:(UzysAppearanceConfig *)config;
-
+- (void)deselecteItem:(UIImage *)image;
 @end
