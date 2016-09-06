@@ -723,9 +723,11 @@
     ALAsset* asset = [self.assets objectAtIndex:indexPath.row];
     [cell applyData:asset];
     BOOL selectedItem = [self selectedCheck:asset atGroup:self.assetsGroup];
+    [cell setSelected:selectedItem];
     if( selectedItem ){
-        [cell setSelected:selectedItem];
         [collectionView selectItemAtIndexPath:indexPath animated:true scrollPosition:UICollectionViewScrollPositionNone];
+    }else {
+        [collectionView deselectItemAtIndexPath:indexPath animated:true];
     }
     return cell;
 }
