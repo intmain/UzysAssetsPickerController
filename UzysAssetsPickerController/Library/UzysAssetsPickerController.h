@@ -17,6 +17,7 @@
 @optional
 - (void)uzysAssetsPickerControllerDidCancel:(UzysAssetsPickerController *)picker;
 - (void)uzysAssetsPickerControllerDidExceedMaximumNumberOfSelection:(UzysAssetsPickerController *)picker;
+- (void)uzysAssetsPickerController:(UzysAssetsPickerController *)picker didFinishPickingAssetsWithGroupKey:(NSDictionary*)assetsDic;
 @end
 
 @interface UzysAssetsPickerController : UIViewController
@@ -35,5 +36,5 @@
  *  @param config UzysAppearanceConfig instance.
  */
 + (void)setUpAppearanceConfig:(UzysAppearanceConfig *)config;
-- (void)deselecteItem:(UIImage *)image;
+- (void)deselecteItem:(ALAsset *)asset WithGroupKey:(NSString *)key;
 @end

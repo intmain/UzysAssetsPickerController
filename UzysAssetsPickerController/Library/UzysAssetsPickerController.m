@@ -145,15 +145,15 @@
     for( ALAssetsGroup* group in self.groups ){
         NSString *key = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
         NSMutableArray *assets = [self.orderedSelectedItem objectForKey:key];
-        [selectedAssets addObjectsFromArray:assets];
+        if( assets != nil )
+            [selectedAssets addObjectsFromArray:assets];
     }
     return selectedAssets;
 }
 
-- (ALAsset *)getMatchAsset:(ALAsset* )sourceAsset atGroup:(ALAssetsGroup*)group
+- (ALAsset *)getMatchAsset:(ALAsset* )sourceAsset atGroupKey:(NSString*)groupKey
 {
-    NSString *key = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    NSMutableArray *assets = [self.orderedSelectedItem objectForKey:key];
+    NSMutableArray *assets = [self.orderedSelectedItem objectForKey:groupKey];
     for (ALAsset *asset in assets) {
         if ([asset.defaultRepresentation.url.absoluteString isEqualToString:sourceAsset.defaultRepresentation.url.absoluteString]){
             return asset;
@@ -162,14 +162,13 @@
     return nil;
 }
 
-- (void)setUpdateItem:(ALAsset* )selectedALAsset atGroup:(ALAssetsGroup*)group selected:(BOOL)isSelected
+- (void)setUpdateItem:(ALAsset* )selectedALAsset atGroupKey:(NSString*)groupKey selected:(BOOL)isSelected
 {
-    NSString *key = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    NSMutableArray *assets = [self.orderedSelectedItem objectForKey:key];
+    NSMutableArray *assets = [self.orderedSelectedItem objectForKey:groupKey];
     if( assets == nil ){
         assets = [[NSMutableArray alloc] init];
     }
-    ALAsset* findAsset = [self getMatchAsset:selectedALAsset atGroup:group];
+    ALAsset* findAsset = [self getMatchAsset:selectedALAsset atGroupKey:groupKey];
     if( isSelected ){
         if( findAsset == nil ){
             [assets addObject:selectedALAsset];
@@ -179,7 +178,13 @@
             [assets removeObject:findAsset];
         }
     }
-    [self.orderedSelectedItem setValue:assets forKey:key];
+    [self.orderedSelectedItem setValue:assets forKey:groupKey];
+}
+
+- (void)setUpdateItem:(ALAsset* )selectedALAsset atGroup:(ALAssetsGroup*)group selected:(BOOL)isSelected
+{
+    NSString *key = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    [self setUpdateItem:selectedALAsset atGroupKey:key selected:isSelected];
 }
 
 - (BOOL)selectedCheck:(ALAsset* )checkAsset atGroup:(ALAssetsGroup*)group
@@ -394,9 +399,10 @@
     [self menuArrowRotate];
 }
 
-- (void)deselecteItem:(UIImage *)image
+- (void)deselecteItem:(ALAsset *)asset WithGroupKey:(NSString *)key
 {
-
+    [self setUpdateItem:asset atGroupKey:key selected:NO];
+    [self reloadData];
 }
 
 - (void)changeAssetType:(BOOL)isPhoto endBlock:(voidBlock)endBlock
@@ -762,7 +768,9 @@
     {
         UzysAssetsPickerController *picker = (UzysAssetsPickerController *)self;
         
-        if([picker.delegate respondsToSelector:@selector(uzysAssetsPickerController:didFinishPickingAssets:)])
+        if([picker.delegate respondsToSelector:@selector(uzysAssetsPickerController:didFinishPickingAssetsWithGroupKey:)])
+            [picker.delegate uzysAssetsPickerController:picker didFinishPickingAssetsWithGroupKey:self.orderedSelectedItem];
+        else if([picker.delegate respondsToSelector:@selector(uzysAssetsPickerController:didFinishPickingAssets:)])
             [picker.delegate uzysAssetsPickerController:picker didFinishPickingAssets:assets];
         
         [self dismissViewControllerAnimated:YES completion:^{
@@ -928,36 +936,8 @@
             {
                 if(currentAssetsGroupIsInUpdatedAssetGroup)
                 {
-                    /*
-                    NSMutableArray *selectedItems = [NSMutableArray array];
-                    NSArray *selectedPath = strongSelf.collectionView.indexPathsForSelectedItems;
-                    
-                    for (NSIndexPath *idxPath in selectedPath)
-                    {
-                        [selectedItems addObject:[strongSelf.assets objectAtIndex:idxPath.row]];
-                    }*/
                     NSInteger beforeAssets = strongSelf.assets.count;
                     [strongSelf setupAssets:^{
-                        /*
-                        for (ALAsset *item in selectedItems)
-                        {
-                            BOOL isExist = false;
-                            for(ALAsset *asset in strongSelf.assets)
-                            {
-                                if([[[asset valueForProperty:ALAssetPropertyAssetURL] absoluteString] isEqualToString:[[item valueForProperty:ALAssetPropertyAssetURL] absoluteString]])
-                                {
-                                    NSUInteger idx = [strongSelf.assets indexOfObject:asset];
-                                    NSIndexPath *newPath = [NSIndexPath indexPathForRow:idx inSection:0];
-                                    [strongSelf.collectionView selectItemAtIndexPath:newPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-                                    isExist = true;
-                                }
-                            }
-                            if(isExist ==false)
-                            {
-                                [strongSelf setUpdateItem:item atGroup:strongSelf.assetsGroup selected:NO];
-                            }
-                        }*/
-                        
                         [strongSelf setSelectedLableUpdate];
                         if(strongSelf.assets.count > beforeAssets)
                         {
@@ -1093,39 +1073,13 @@
             }
             if(self.curAssetFilterType == 0 || (self.curAssetFilterType ==1 && isPhoto ==YES) || (self.curAssetFilterType == 2 && isPhoto ==NO))
             {
-                /*
-                NSMutableArray *selectedItems = [NSMutableArray array];
-                NSArray *selectedPath = self.collectionView.indexPathsForSelectedItems;
-                
-                for (NSIndexPath *idxPath in selectedPath)
-                {
-                    [selectedItems addObject:[self.assets objectAtIndex:idxPath.row]];
-                }*/
-                
                 [self.assets insertObject:asset atIndex:0];
-                [self reloadData];
-                [self setUpdateItem:asset atGroup:self.assetsGroup selected:YES];
-                /*
-                for (ALAsset *item in selectedItems)
+                if([self checkSelectedMax]==NO)
                 {
-                    for(ALAsset *asset in self.assets)
-                    {
-                        if([[[asset valueForProperty:ALAssetPropertyAssetURL] absoluteString] isEqualToString:[[item valueForProperty:ALAssetPropertyAssetURL] absoluteString]])
-                        {
-                            NSUInteger idx = [self.assets indexOfObject:asset];
-                            NSIndexPath *newPath = [NSIndexPath indexPathForRow:idx inSection:0];
-                            [self.collectionView selectItemAtIndexPath:newPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-                        }
-                    }
-                }*/
-                [self.collectionView setContentOffset:CGPointMake(0, 0) animated:NO];
-                
-                if(self.maximumNumberOfSelection > self.collectionView.indexPathsForSelectedItems.count)
-                {
-                    NSIndexPath *newPath = [NSIndexPath indexPathForRow:0 inSection:0];
-                    [self.collectionView selectItemAtIndexPath:newPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
                     [self setUpdateItem:asset atGroup:self.assetsGroup selected:YES];
                 }
+                [self reloadData];
+                [self.collectionView setContentOffset:CGPointMake(0, 0) animated:NO];
                 [self setSelectedLableUpdate];
             }
             
