@@ -55,10 +55,14 @@ static CGFloat thumnailLength;
     }
     return self;
 }
+        
 - (void)applyData:(ALAsset *)asset
 {
     self.asset  = asset;
-    self.image  = [UIImage imageWithCGImage:asset.thumbnail];
+    ALAssetRepresentation *representation = [asset defaultRepresentation];
+    self.image = [UIImage imageWithCGImage:representation.fullResolutionImage
+                               scale:[representation scale]
+                         orientation:(UIImageOrientation)[representation orientation]];
     self.type   = [asset valueForProperty:ALAssetPropertyType];
     self.title  = [UzysAssetsViewCell getTimeStringOfTimeInterval:[[asset valueForProperty:ALAssetPropertyDuration] doubleValue]];
 }
