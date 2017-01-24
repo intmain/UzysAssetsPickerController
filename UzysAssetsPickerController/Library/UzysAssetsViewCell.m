@@ -59,10 +59,7 @@ static CGFloat thumnailLength;
 - (void)applyData:(ALAsset *)asset
 {
     self.asset  = asset;
-    ALAssetRepresentation *representation = [asset defaultRepresentation];
-    self.image = [UIImage imageWithCGImage:representation.fullResolutionImage
-                               scale:[representation scale]
-                         orientation:(UIImageOrientation)[representation orientation]];
+    self.image = [UIImage imageWithCGImage:asset.thumbnail];
     self.type   = [asset valueForProperty:ALAssetPropertyType];
     self.title  = [UzysAssetsViewCell getTimeStringOfTimeInterval:[[asset valueForProperty:ALAssetPropertyDuration] doubleValue]];
 }
